@@ -1,0 +1,16 @@
+name: adventofcode2021
+version: 0.1.0.0
+synopsis: My solutions for the Advent Of Code 2021 challenge written in Haskell
+description: https://github.com/Scriptim/AdventOfCode/2021
+license: MIT
+author: Scriptim
+maintainer: Scriptim <me@scriptim.dev>
+github: Scriptim/AdventOfCode
+
+ghc-options:
+  -fwrite-ide-info
+  -hiedir=.hie
+
+dependencies:
+  - base
+
