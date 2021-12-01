@@ -14,3 +14,15 @@ ghc-options:
 dependencies:
   - base
 
+internal-libraries:
+  adventofcode:
+    source-dirs: lib
+    exposed-modules:
+      - AdventOfCode
+    dependencies:
+      - criterion
+      - deepseq
+      - directory
+      - filepath
+      - hspec
+
