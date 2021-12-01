@@ -26,3 +26,25 @@ internal-libraries:
       - filepath
       - hspec
 
+executables:
+  sonar-sweep:
+    source-dirs: 01-sonar_sweep
+    main: Main.hs
+    dependencies:
+      - adventofcode
+
+tests:
+  sonar-sweep-test:
+    source-dirs: 01-sonar_sweep
+    main: Tests.hs
+    ghc-options: -main-is Tests
+    dependencies:
+      - adventofcode
+
+benchmarks:
+  sonar-sweep-bench:
+    source-dirs: 01-sonar_sweep
+    main: Benchmarks.hs
+    ghc-options: -main-is Benchmarks
+    dependencies:
+      - adventofcode
