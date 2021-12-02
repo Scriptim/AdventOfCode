@@ -32,6 +32,12 @@ executables:
     main: Main.hs
     dependencies:
       - adventofcode
+  dive:
+    source-dirs: 02-dive
+    main: Main.hs
+    dependencies:
+      - adventofcode
+      - deepseq
 
 tests:
   sonar-sweep-test:
@@ -40,6 +46,13 @@ tests:
     ghc-options: -main-is Tests
     dependencies:
       - adventofcode
+  dive-test:
+    source-dirs: 02-dive
+    main: Tests.hs
+    ghc-options: -main-is Tests
+    dependencies:
+      - adventofcode
+      - deepseq
 
 benchmarks:
   sonar-sweep-bench:
@@ -48,3 +61,10 @@ benchmarks:
     ghc-options: -main-is Benchmarks
     dependencies:
       - adventofcode
+  dive-bench:
+    source-dirs: 02-dive
+    main: Benchmarks.hs
+    ghc-options: -main-is Benchmarks
+    dependencies:
+      - adventofcode
+      - deepseq

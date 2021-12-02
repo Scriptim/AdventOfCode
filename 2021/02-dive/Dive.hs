@@ -1,9 +1,14 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Dive (parseInput, part1, part2) where
 
 import Control.Arrow ((***))
+import Control.DeepSeq (NFData)
 import Data.Char (toUpper)
+import GHC.Generics (Generic)
 
-data Direction = Forward | Up | Down deriving (Read)
+data Direction = Forward | Up | Down deriving (Read, Generic, NFData)
 
 dive1 :: (Integer, Integer) -> [(Direction, Integer)] -> (Integer, Integer)
 dive1 pos [] = pos
