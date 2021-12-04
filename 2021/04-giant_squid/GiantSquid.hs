@@ -1,4 +1,4 @@
-module GiantSquid (parseInput, part1) where
+module GiantSquid (parseInput, part1, part2) where
 
 import Control.Applicative (liftA2)
 import Data.Either (isRight, lefts)
@@ -22,11 +22,20 @@ playAnyWin (n : ns) bingoBoards = case find boardWinning newBoards of
   where
     newBoards = drawNum n bingoBoards
 
+playAllWin :: [Integer] -> [BingoBoard] -> (Integer, BingoBoard)
+playAllWin (n : ns) bingoBoards = if null remaining then (n, head newBoards) else playAllWin ns remaining
+  where
+    remaining = filter (not . boardWinning) newBoards
+    newBoards = drawNum n bingoBoards
+
 score :: Integer -> BingoBoard -> Integer
 score winningNum = (* winningNum) . sum . lefts . concat
 
 part1 :: ([Integer], [BingoBoard]) -> String
 part1 = show . uncurry score . uncurry playAnyWin
+
+part2 :: ([Integer], [BingoBoard]) -> String
+part2 = show . uncurry score . uncurry playAllWin
 
 parseInput :: String -> ([Integer], [BingoBoard])
 parseInput input = (bingoNums, bingoBoards)
