@@ -43,6 +43,12 @@ executables:
     main: Main.hs
     dependencies:
       - adventofcode
+  giant-squid:
+    source-dirs: 04-giant_squid
+    main: Main.hs
+    dependencies:
+      - adventofcode
+      - split
 
 tests:
   sonar-sweep-test:
@@ -64,6 +70,13 @@ tests:
     ghc-options: -main-is Tests
     dependencies:
       - adventofcode
+  giant-squid-test:
+    source-dirs: 04-giant_squid
+    main: Tests.hs
+    ghc-options: -main-is Tests
+    dependencies:
+      - adventofcode
+      - split
 
 benchmarks:
   sonar-sweep-bench:
@@ -85,3 +98,10 @@ benchmarks:
     ghc-options: -main-is Benchmarks
     dependencies:
       - adventofcode
+  giant-squid-bench:
+    source-dirs: 04-giant_squid
+    main: Benchmarks.hs
+    ghc-options: -main-is Benchmarks
+    dependencies:
+      - adventofcode
+      - split
