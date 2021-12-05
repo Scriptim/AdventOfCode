@@ -49,6 +49,12 @@ executables:
     dependencies:
       - adventofcode
       - split
+  hydrothermal-venture:
+    source-dirs: 05-hydrothermal_venture
+    main: Main.hs
+    dependencies:
+      - adventofcode
+      - split
 
 tests:
   sonar-sweep-test:
@@ -77,6 +83,13 @@ tests:
     dependencies:
       - adventofcode
       - split
+  hydrothermal-venture-test:
+    source-dirs: 05-hydrothermal_venture
+    main: Tests.hs
+    ghc-options: -main-is Tests
+    dependencies:
+      - adventofcode
+      - split
 
 benchmarks:
   sonar-sweep-bench:
@@ -100,6 +113,13 @@ benchmarks:
       - adventofcode
   giant-squid-bench:
     source-dirs: 04-giant_squid
+    main: Benchmarks.hs
+    ghc-options: -main-is Benchmarks
+    dependencies:
+      - adventofcode
+      - split
+  hydrothermal-venture-bench:
+    source-dirs: 05-hydrothermal_venture
     main: Benchmarks.hs
     ghc-options: -main-is Benchmarks
     dependencies:
