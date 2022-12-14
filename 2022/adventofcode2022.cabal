@@ -235,3 +235,9 @@ common regolith-reservoir
 executable regolith-reservoir
     import: regolith-reservoir
     main-is: Main.hs
+test-suite regolith-reservoir-test
+    import: regolith-reservoir
+    main-is: Spec.hs
+benchmark regolith-reservoir-bench
+    import: regolith-reservoir
+    main-is: Bench.hs
