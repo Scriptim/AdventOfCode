@@ -21,6 +21,7 @@ if __name__ == '__main__':
             matches = len(winning_numbers.intersection(my_numbers))
             if matches:
                 result += 2 ** (matches - 1)
+        assert result == 13 
         print(result)
 
         # part 2
@@ -34,4 +35,5 @@ if __name__ == '__main__':
                 cards.extend(copies)
             i += 1
         result = len(cards)
+        assert result == 30
         print(result)
