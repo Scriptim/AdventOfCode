@@ -29,6 +29,7 @@ if __name__ == '__main__':
         result = 0
         for record, groups in records:
             result += num_arrangements(record, groups)
+        assert result == 21
         print(result)
 
         # part 2
@@ -37,4 +38,5 @@ if __name__ == '__main__':
             record = '?'.join([''.join(record)] * 5)
             groups = groups * 5
             result += num_arrangements(record, groups)
+        assert result == 525152
         print(result)
