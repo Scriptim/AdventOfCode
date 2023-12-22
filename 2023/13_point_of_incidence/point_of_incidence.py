@@ -27,10 +27,12 @@ if __name__ == '__main__':
         result = 0
         for pattern in patterns:
             result += reflection_columns(pattern) or 100 * reflection_columns(transpose(pattern))
+        assert result == 405
         print(result)
 
         # part 2
         result = 0
         for pattern in patterns:
             result += reflection_columns(pattern, 1) or 100 * reflection_columns(transpose(pattern), 1)
+        assert result == 400
         print(result)
