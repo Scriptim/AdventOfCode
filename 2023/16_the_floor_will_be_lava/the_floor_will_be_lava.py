@@ -38,6 +38,7 @@ if __name__ == '__main__':
 
         # part 1
         result = energize(((0, 0), (1, 0)), grid)
+        assert result == 46
         print(result)
 
         # part 2
@@ -49,4 +50,5 @@ if __name__ == '__main__':
             edges.append(((x, 0), (0, 1)))
             edges.append(((x, len(grid) - 1), (0, -1)))
         result = max(map(lambda edge: energize(edge, grid), edges))
+        assert result == 51
         print(result)
