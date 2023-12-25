@@ -40,9 +40,11 @@ if __name__ == '__main__':
         # part 1
         graph = build_graph(heat_loss_map)
         result = dijkstar.find_path(graph, 'start', 'destination').total_cost
+        assert result == 102
         print(result)
 
         # part 2
         graph = build_graph(heat_loss_map, 4, 10)
         result = dijkstar.find_path(graph, 'start', 'destination').total_cost
+        assert result == 71
         print(result)
