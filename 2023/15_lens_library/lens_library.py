@@ -37,6 +37,7 @@ if __name__ == '__main__':
 
         # part 1
         result = sum(map(hash, steps))
+        assert result == 1320
         print(result)
 
         # part 2
@@ -44,4 +45,5 @@ if __name__ == '__main__':
         for step in steps:
             perform_operation(step, boxes)
         result = focusing_power(boxes)
+        assert result == 145
         print(result)
