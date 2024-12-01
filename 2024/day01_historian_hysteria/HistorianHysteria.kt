@@ -15,11 +15,15 @@ class HistorianHysteria {
     fun totalListDistance(left: List<Int>, right: List<Int>): Int =
         left.sorted().zip(right.sorted()).sumOf { (l, r) -> abs(l - r) }
 
+    fun totalSimilarityScore(left: List<Int>, right: List<Int>): Int =
+        left.sumOf { l -> l * right.count { r -> r == l } }
+
 }
 
 fun main() {
     HistorianHysteria().run {
         val (left, right) = parseInput(readInput())
         println(totalListDistance(left, right))
+        println(totalSimilarityScore(left, right))
     }
 }
