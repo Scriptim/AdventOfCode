@@ -33,6 +33,22 @@ class CeresSearch {
         return count
     }
 
+    fun countWordCross(wordSearch: List<String>, word: String): Int {
+        var count = 0
+
+        wordSearch.forEachIndexed { row, line ->
+            count += line.indices.count { col ->
+                fun hasDiagonalWord(direction: Direction) =
+                    readStringAt(wordSearch, Pair(row, col) - direction, direction, word.length) == word
+
+                (hasDiagonalWord(Direction.SOUTH_EAST) || hasDiagonalWord(Direction.NORTH_WEST)) &&
+                (hasDiagonalWord(Direction.SOUTH_WEST) || hasDiagonalWord(Direction.NORTH_EAST))
+            }
+        }
+
+        return count
+    }
+
     private enum class Direction(val delta: Pair<Int, Int>) {
         NORTH(Pair(0, -1)),
         NORTH_EAST(Pair(1, -1)),
@@ -47,11 +63,15 @@ class CeresSearch {
     private operator fun Pair<Int, Int>.plus(direction: Direction): Pair<Int, Int> =
         Pair(first + direction.delta.first, second + direction.delta.second)
 
+    private operator fun Pair<Int, Int>.minus(direction: Direction): Pair<Int, Int> =
+        Pair(first - direction.delta.first, second - direction.delta.second)
+
 }
 
 fun main() {
     CeresSearch().run {
         val wordSearch = readInput()
         println(countWord(wordSearch, "XMAS"))
+        println(countWordCross(wordSearch, "MAS"))
     }
 }
