@@ -1,5 +1,8 @@
 package day04_ceres_search
 
+import Direction
+import minus
+import plus
 import java.io.File
 
 class CeresSearch {
@@ -48,23 +51,6 @@ class CeresSearch {
 
         return count
     }
-
-    private enum class Direction(val delta: Pair<Int, Int>) {
-        NORTH(Pair(0, -1)),
-        NORTH_EAST(Pair(1, -1)),
-        EAST(Pair(1, 0)),
-        SOUTH_EAST(Pair(1, 1)),
-        SOUTH(Pair(0, 1)),
-        SOUTH_WEST(Pair(-1, 1)),
-        WEST(Pair(-1, 0)),
-        NORTH_WEST(Pair(-1, -1))
-    }
-
-    private operator fun Pair<Int, Int>.plus(direction: Direction): Pair<Int, Int> =
-        Pair(first + direction.delta.first, second + direction.delta.second)
-
-    private operator fun Pair<Int, Int>.minus(direction: Direction): Pair<Int, Int> =
-        Pair(first - direction.delta.first, second - direction.delta.second)
 
 }
 
