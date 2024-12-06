@@ -21,56 +21,58 @@ class GuardGallivant {
         return map
     }
 
-    private fun path(map: Map<Coordinate, MapTile>): List<Pair<Coordinate, Direction>> {
-        val path = mutableListOf<Pair<Coordinate, Direction>>()
+    private fun walk(map: Map<Coordinate, MapTile>, step: (Coordinate, Direction) -> Boolean) {
         var currentPosition = map.entries.first { it.value.isGuard() }.key
         var currentDirection = map[currentPosition]!!.guardToDirection()
 
         while (true) {
             while (map[currentPosition + currentDirection]?.takeIf { it != MapTile.OBSTRUCTION } != null) {
-                path.add(Pair(currentPosition, currentDirection))
+                if (!step(currentPosition, currentDirection)) return
                 currentPosition += currentDirection
-                if (Pair(currentPosition, currentDirection) in path) return path.toList()
             }
 
-            path.add(Pair(currentPosition, currentDirection))
-            if (currentPosition + currentDirection !in map) return path.toList()
+            if (!step(currentPosition, currentDirection) || currentPosition + currentDirection !in map) return
+
             currentDirection = currentDirection.turnFullRight()
         }
     }
 
-    fun countVisited(map: Map<Coordinate, MapTile>): Int = path(map).map { it.first }.toSet().size
+    private fun walkFull(map: Map<Coordinate, MapTile>, step: (Coordinate, Direction) -> Unit) =
+        walk(map) { position, direction -> step(position, direction); true}
+
+    fun countVisited(map: Map<Coordinate, MapTile>): Int = mutableSetOf<Coordinate>().run {
+        walk(map) { position, _ -> add(position); true }
+        size
+    }
 
     fun countLoopObstructions(map: Map<Coordinate, MapTile>): Int {
-        val path = path(map)
+        var count = 0
+        val originalPath = mutableSetOf<Coordinate>()
         val mutMap = map.toMutableMap().apply {
             entries.filter { it.value.isGuard() }.forEach { this[it.key] = MapTile.EMPTY }
         }
 
-        return path.withIndex().count { (index, pathElement) ->
-            val (position, direction) = pathElement
+        walkFull(map) { position, direction ->
+            originalPath.add(position)
             val obstacle = position + direction
 
-            if (map[obstacle] != MapTile.EMPTY || obstacle in path.take(index).map { it.first }) {
-                return@count false
+            if (map[obstacle] == MapTile.EMPTY && obstacle !in originalPath) {
+                mutMap[position] = MapTile.byDirection(direction)
+                mutMap[obstacle] = MapTile.OBSTRUCTION
+
+                val path = mutableSetOf<Pair<Coordinate, Direction>>()
+                walk(mutMap) { altPosition, altDirection ->
+                    val loopy = !path.add(Pair(altPosition, altDirection))
+                    if (loopy) count++
+                    !loopy
+                }
+
+                mutMap[position] = MapTile.EMPTY
+                mutMap[obstacle] = MapTile.EMPTY
             }
-
-            mutMap[position] = when (direction) {
-                Direction.NORTH -> MapTile.GUARD_UP
-                Direction.EAST -> MapTile.GUARD_RIGHT
-                Direction.SOUTH -> MapTile.GUARD_DOWN
-                Direction.WEST -> MapTile.GUARD_LEFT
-                else -> throw IllegalArgumentException("Not a guard direction")
-            }
-            mutMap[obstacle] = MapTile.OBSTRUCTION
-
-            val loopy = path(mutMap).last().let { it.first + it.second } in map
-
-            mutMap[position] = MapTile.EMPTY
-            mutMap[obstacle] = MapTile.EMPTY
-
-            loopy
         }
+
+        return count
     }
 
     enum class MapTile(val symbol: Char) {
@@ -88,6 +90,14 @@ class GuardGallivant {
 
         companion object {
             fun bySymbol(symbol: Char): MapTile = entries.first { it.symbol == symbol }
+
+            fun byDirection(direction: Direction): MapTile = when (direction) {
+                Direction.NORTH -> GUARD_UP
+                Direction.EAST -> GUARD_RIGHT
+                Direction.SOUTH -> GUARD_DOWN
+                Direction.WEST -> GUARD_LEFT
+                else -> throw IllegalArgumentException("Not a guard direction")
+            }
         }
 
     }
