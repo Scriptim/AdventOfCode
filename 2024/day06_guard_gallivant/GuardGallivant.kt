@@ -21,35 +21,56 @@ class GuardGallivant {
         return map
     }
 
-    fun countVisited(map: Map<Coordinate, MapTile>): Int {
-        val visited = mutableSetOf<Coordinate>()
-        val mutMap = map.toMutableMap()
-        var position = mutMap.entries.first { it.value.isGuard() }.key
+    private fun path(map: Map<Coordinate, MapTile>): List<Pair<Coordinate, Direction>> {
+        val path = mutableListOf<Pair<Coordinate, Direction>>()
+        var currentPosition = map.entries.first { it.value.isGuard() }.key
+        var currentDirection = map[currentPosition]!!.guardToDirection()
 
-        while (position in mutMap) {
-            visited.add(position)
-
-            val newPosition = position + mutMap[position]!!.guardToDirection()
-
-            when {
-                newPosition !in mutMap -> {
-                    mutMap[position] = MapTile.EMPTY
-                    position = newPosition
-                }
-
-                mutMap[newPosition] == MapTile.OBSTRUCTION -> {
-                    mutMap[position] = mutMap[position]!!.guardTurnRight()
-                }
-
-                else -> {
-                    mutMap[newPosition] = mutMap[position]!!
-                    mutMap[position] = MapTile.EMPTY
-                    position = newPosition
-                }
+        while (true) {
+            while (map[currentPosition + currentDirection]?.takeIf { it != MapTile.OBSTRUCTION } != null) {
+                path.add(Pair(currentPosition, currentDirection))
+                currentPosition += currentDirection
+                if (Pair(currentPosition, currentDirection) in path) return path.toList()
             }
+
+            path.add(Pair(currentPosition, currentDirection))
+            if (currentPosition + currentDirection !in map) return path.toList()
+            currentDirection = currentDirection.turnFullRight()
+        }
+    }
+
+    fun countVisited(map: Map<Coordinate, MapTile>): Int = path(map).map { it.first }.toSet().size
+
+    fun countLoopObstructions(map: Map<Coordinate, MapTile>): Int {
+        val path = path(map)
+        val mutMap = map.toMutableMap().apply {
+            entries.filter { it.value.isGuard() }.forEach { this[it.key] = MapTile.EMPTY }
         }
 
-        return visited.size
+        return path.withIndex().count { (index, pathElement) ->
+            val (position, direction) = pathElement
+            val obstacle = position + direction
+
+            if (map[obstacle] != MapTile.EMPTY || obstacle in path.take(index).map { it.first }) {
+                return@count false
+            }
+
+            mutMap[position] = when (direction) {
+                Direction.NORTH -> MapTile.GUARD_UP
+                Direction.EAST -> MapTile.GUARD_RIGHT
+                Direction.SOUTH -> MapTile.GUARD_DOWN
+                Direction.WEST -> MapTile.GUARD_LEFT
+                else -> throw IllegalArgumentException("Not a guard direction")
+            }
+            mutMap[obstacle] = MapTile.OBSTRUCTION
+
+            val loopy = path(mutMap).last().let { it.first + it.second } in map
+
+            mutMap[position] = MapTile.EMPTY
+            mutMap[obstacle] = MapTile.EMPTY
+
+            loopy
+        }
     }
 
     enum class MapTile(val symbol: Char) {
@@ -65,14 +86,6 @@ class GuardGallivant {
             else -> throw IllegalArgumentException("Not a guard tile")
         }
 
-        fun guardTurnRight(): MapTile = when (this) {
-            GUARD_UP -> GUARD_RIGHT
-            GUARD_RIGHT -> GUARD_DOWN
-            GUARD_DOWN -> GUARD_LEFT
-            GUARD_LEFT -> GUARD_UP
-            else -> throw IllegalArgumentException("Not a guard tile")
-        }
-
         companion object {
             fun bySymbol(symbol: Char): MapTile = entries.first { it.symbol == symbol }
         }
@@ -85,5 +98,6 @@ fun main() {
     GuardGallivant().run {
         val map = parseInput(readInput())
         println(countVisited(map))
+        println(countLoopObstructions(map))
     }
 }

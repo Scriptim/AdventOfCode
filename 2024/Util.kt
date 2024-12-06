@@ -10,7 +10,13 @@ enum class Direction(val delta: Pair<Int, Int>) {
     SOUTH(Pair(0, 1)),
     SOUTH_WEST(Pair(-1, 1)),
     WEST(Pair(-1, 0)),
-    NORTH_WEST(Pair(-1, -1))
+    NORTH_WEST(Pair(-1, -1));
+
+    fun turnHalfRight(): Direction = entries[(ordinal + 1) % 8]
+
+    fun turnFullRight(): Direction = entries[(ordinal + 2) % 8]
+
+    fun turnAround(): Direction = entries[(ordinal + 4) % 8]
 }
 
 typealias Coordinate = Pair<Int, Int>
