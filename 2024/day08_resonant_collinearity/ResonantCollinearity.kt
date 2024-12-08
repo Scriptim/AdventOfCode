@@ -13,7 +13,7 @@ class ResonantCollinearity {
         line.mapIndexed { column, char -> Pair(column, row) to char }
     }.toMap()
 
-    fun antinodeLocations(map: Map<Coordinate, Char>): Int {
+    fun antinodeLocations(map: Map<Coordinate, Char>, resonantHarmonics: Boolean = false): Int {
         val locations = mutableSetOf<Coordinate>()
         val antennaLocations = map.filterValues { it != '.' }.entries.groupBy({ it.value }, { it.key })
 
@@ -22,8 +22,15 @@ class ResonantCollinearity {
                 sameFrequencyAntennas.filter { it != antenna1 }.forEach { antenna2 ->
                     val delta = antenna2 - antenna1
 
-                    if (antenna1 - delta in map) locations.add(antenna1 - delta)
-                    if (antenna2 + delta in map) locations.add(antenna2 + delta)
+                    if (resonantHarmonics) {
+                        var antinode = antenna1
+                        while (antinode in map) { locations.add(antinode); antinode -= delta }
+                        antinode = antenna2
+                        while (antinode in map) { locations.add(antinode); antinode += delta }
+                    } else {
+                        if (antenna1 - delta in map) locations.add(antenna1 - delta)
+                        if (antenna2 + delta in map) locations.add(antenna2 + delta)
+                    }
                 }
             }
         }
@@ -37,5 +44,6 @@ fun main() {
     ResonantCollinearity().run {
         val map = parseInput(readInput())
         println(antinodeLocations(map))
+        println(antinodeLocations(map, resonantHarmonics = true))
     }
 }
