@@ -21,6 +21,12 @@ enum class Direction(val delta: Pair<Int, Int>) {
 
 typealias Coordinate = Pair<Int, Int>
 
+operator fun Coordinate.plus(other: Coordinate): Coordinate =
+    Pair(first + other.first, second + other.second)
+
+operator fun Coordinate.minus(other: Coordinate): Coordinate =
+    Pair(first - other.first, second - other.second)
+
 operator fun Coordinate.plus(direction: Direction): Coordinate =
     Pair(first + direction.delta.first, second + direction.delta.second)
 
