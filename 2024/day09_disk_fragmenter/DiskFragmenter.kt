@@ -11,14 +11,20 @@ class DiskFragmenter {
 
     private data class Block(val fileId: Int, val size: Int)
 
-    private fun compact(diskMap: List<Int>): List<IndexedValue<Block>> {
-        val compactDisk = mutableListOf<IndexedValue<Block>>()
+    private fun indexedDisk(diskMap: List<Int>): MutableList<IndexedValue<Block>> {
+        val indexedDisk = mutableListOf<IndexedValue<Block>>()
 
         var position = 0
         diskMap.forEachIndexed { index, size ->
-            if (index % 2 == 0) compactDisk.add(IndexedValue(position, Block(index / 2, size)))
+            if (index % 2 == 0) indexedDisk.add(IndexedValue(position, Block(index / 2, size)))
             position += size
         }
+
+        return indexedDisk
+    }
+
+    private fun compact(diskMap: List<Int>): List<IndexedValue<Block>> {
+        val compactDisk = indexedDisk(diskMap)
 
         var blockBeforeGap = 0
         while (true) {
@@ -44,6 +50,30 @@ class DiskFragmenter {
         return compactDisk.toList()
     }
 
+    private fun compactNoFragment(diskMap: List<Int>): List<IndexedValue<Block>> {
+        val compactDisk = indexedDisk(diskMap)
+
+        var fillBlockIndex = compactDisk.size - 1
+        for (fillId in compactDisk.indices.reversed()) {
+            while (compactDisk[fillBlockIndex].value.fileId != fillId) fillBlockIndex--
+            val fillBlock = compactDisk[fillBlockIndex]
+            val fillSize = fillBlock.value.size
+
+            val (blockBeforeGapIndex, blockBeforeGap) = compactDisk.withIndex().find { (index, block) ->
+                index < fillBlockIndex && compactDisk[index + 1].index - (block.index + block.value.size) >= fillSize
+            } ?: continue
+
+            compactDisk.removeAt(fillBlockIndex)
+            compactDisk.add(
+                blockBeforeGapIndex + 1,
+                IndexedValue(blockBeforeGap.index + blockBeforeGap.value.size, Block(fillId, fillSize))
+            )
+
+        }
+
+        return compactDisk.toList()
+    }
+
     private fun checksum(compactDisk: List<IndexedValue<Block>>): Long {
         var sum = 0L
         compactDisk.forEach { (startPosition, block) ->
@@ -52,7 +82,8 @@ class DiskFragmenter {
         return sum
     }
 
-    fun compactChecksum(diskMap: List<Int>): Long = checksum(compact(diskMap))
+    fun compactChecksum(diskMap: List<Int>, fragment: Boolean = true): Long =
+        checksum(if (fragment) compact(diskMap) else compactNoFragment(diskMap))
 
 }
 
@@ -60,5 +91,6 @@ fun main() {
     DiskFragmenter().run {
         val diskMap = parseInput(readInput())
         println(compactChecksum(diskMap))
+        println(compactChecksum(diskMap, fragment = false))
     }
 }
