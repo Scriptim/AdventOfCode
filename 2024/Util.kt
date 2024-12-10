@@ -12,6 +12,10 @@ enum class Direction(val delta: Pair<Int, Int>) {
     WEST(Pair(-1, 0)),
     NORTH_WEST(Pair(-1, -1));
 
+    companion object {
+        val VON_NEUMANN_NEIGHBORHOOD = listOf(NORTH, EAST, SOUTH, WEST)
+    }
+
     fun turnHalfRight(): Direction = entries[(ordinal + 1) % 8]
 
     fun turnFullRight(): Direction = entries[(ordinal + 2) % 8]
