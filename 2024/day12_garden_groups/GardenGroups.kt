@@ -41,10 +41,17 @@ class GardenGroups {
         return regions.map { it.toSet() }.toSet()
     }
 
-    fun totalFencePrice(map: Map<Coordinate, Char>): Int = regions(map).sumOf { region ->
-        val area = region.size
-        val perimeter = region.sumOf { center -> Direction.VON_NEUMANN_NEIGHBORHOOD.count { center + it !in region } }
-        area * perimeter
+    private fun perimeter(region: Set<Coordinate>): Int =
+        region.sumOf { center -> Direction.VON_NEUMANN_NEIGHBORHOOD.count { center + it !in region } }
+
+    private fun sides(region: Set<Coordinate>): Int = region.sumOf { center ->
+        Direction.VON_NEUMANN_NEIGHBORHOOD.count {
+            center + it !in region && (center + it.turnFullRight() !in region || center + it.turnHalfRight() in region)
+        }
+    }
+
+    fun totalFencePrice(map: Map<Coordinate, Char>, bulkDiscount: Boolean = false): Int = regions(map).sumOf { region ->
+        region.size * if (bulkDiscount) sides(region) else perimeter(region)
     }
 
 }
@@ -53,5 +60,6 @@ fun main() {
     GardenGroups().run {
         val map = parseInput(readInput())
         println(totalFencePrice(map))
+        println(totalFencePrice(map, bulkDiscount = true))
     }
 }
