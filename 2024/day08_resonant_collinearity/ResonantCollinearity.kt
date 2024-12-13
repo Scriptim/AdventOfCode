@@ -1,7 +1,8 @@
 package day08_resonant_collinearity
 
-import Coordinate
+import Vector2D
 import minus
+import parse2DMap
 import plus
 import java.io.File
 
@@ -9,12 +10,10 @@ class ResonantCollinearity {
 
     fun readInput(): List<String> = File("src/day08_resonant_collinearity/input.txt").readLines()
 
-    fun parseInput(lines: List<String>): Map<Coordinate, Char> = lines.flatMapIndexed { row, line ->
-        line.mapIndexed { column, char -> Pair(column, row) to char }
-    }.toMap()
+    fun parseInput(lines: List<String>): Map<Vector2D<Int>, Char> = parse2DMap(lines)
 
-    fun antinodeLocations(map: Map<Coordinate, Char>, resonantHarmonics: Boolean = false): Int {
-        val locations = mutableSetOf<Coordinate>()
+    fun antinodeLocations(map: Map<Vector2D<Int>, Char>, resonantHarmonics: Boolean = false): Int {
+        val locations = mutableSetOf<Vector2D<Int>>()
         val antennaLocations = map.filterValues { it != '.' }.entries.groupBy({ it.value }, { it.key })
 
         antennaLocations.values.forEach { sameFrequencyAntennas ->

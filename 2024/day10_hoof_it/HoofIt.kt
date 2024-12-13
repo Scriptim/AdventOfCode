@@ -1,22 +1,22 @@
 package day10_hoof_it
 
-import Coordinate
 import Direction
+import Vector2D
+import parse2DMap
 import plus
+import toDigit
 import java.io.File
 
 class HoofIt {
 
     fun readInput(): List<String> = File("src/day10_hoof_it/input.txt").readLines()
 
-    fun parseInput(lines: List<String>): Map<Coordinate, Int> = lines.flatMapIndexed { row, line ->
-        line.mapIndexed { column, char -> Pair(column, row) to char.toString().toInt() }
-    }.toMap()
+    fun parseInput(lines: List<String>): Map<Vector2D<Int>, Int> = parse2DMap(lines).mapValues { it.value.toDigit() }
 
     private fun dynamicProgram(
-        map: Map<Coordinate, Int>,
-        initPeak: (peak: Coordinate) -> Unit,
-        update: (current: Coordinate, previous: Coordinate) -> Unit,
+        map: Map<Vector2D<Int>, Int>,
+        initPeak: (peak: Vector2D<Int>) -> Unit,
+        update: (current: Vector2D<Int>, previous: Vector2D<Int>) -> Unit,
     ) {
         val queue = ArrayDeque(map.filterValues { it == 9 }.keys)
 
@@ -35,8 +35,8 @@ class HoofIt {
         }
     }
 
-    fun totalTrailheadScore(map: Map<Coordinate, Int>): Int {
-        val peaks = map.mapValues { mutableSetOf<Coordinate>() }.toMutableMap()
+    fun totalTrailheadScore(map: Map<Vector2D<Int>, Int>): Int {
+        val peaks = map.mapValues { mutableSetOf<Vector2D<Int>>() }.toMutableMap()
         dynamicProgram(
             map,
             { peak -> peaks[peak] = mutableSetOf(peak) },
@@ -45,7 +45,7 @@ class HoofIt {
         return map.filterValues { it == 0 }.keys.sumOf { peaks[it]!!.size }
     }
 
-    fun totalTrailheadRating(map: Map<Coordinate, Int>): Int {
+    fun totalTrailheadRating(map: Map<Vector2D<Int>, Int>): Int {
         val ratings = map.mapValues { 0 }.toMutableMap()
         dynamicProgram(
             map,

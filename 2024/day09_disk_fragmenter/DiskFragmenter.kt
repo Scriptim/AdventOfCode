@@ -1,5 +1,6 @@
 package day09_disk_fragmenter
 
+import toDigit
 import java.io.File
 import kotlin.math.min
 
@@ -7,7 +8,7 @@ class DiskFragmenter {
 
     fun readInput(): String = File("src/day09_disk_fragmenter/input.txt").readText()
 
-    fun parseInput(line: String): List<Int> = line.trim().map { it.toString().toInt() }
+    fun parseInput(line: String): List<Int> = line.trim().map { it.toDigit() }
 
     private data class Block(val fileId: Int, val size: Int)
 

@@ -1,7 +1,7 @@
 package day06_guard_gallivant
 
-import Coordinate
 import Direction
+import Vector2D
 import plus
 import java.io.File
 
@@ -9,19 +9,19 @@ class GuardGallivant {
 
     fun readInput(): List<String> = File("src/day06_guard_gallivant/input.txt").readLines()
 
-    fun parseInput(lines: List<String>): Map<Coordinate, MapTile> {
-        val map = mutableMapOf<Coordinate, MapTile>()
+    fun parseInput(lines: List<String>): Map<Vector2D<Int>, MapTile> {
+        val map = mutableMapOf<Vector2D<Int>, MapTile>()
 
         lines.forEachIndexed { row, line ->
             line.forEachIndexed { col, symbol ->
-                map[Pair(col, row)] = MapTile.bySymbol(symbol)
+                map[Vector2D(col, row)] = MapTile.bySymbol(symbol)
             }
         }
 
         return map
     }
 
-    private fun walk(map: Map<Coordinate, MapTile>, step: (Coordinate, Direction) -> Boolean) {
+    private fun walk(map: Map<Vector2D<Int>, MapTile>, step: (Vector2D<Int>, Direction) -> Boolean) {
         var currentPosition = map.entries.first { it.value.isGuard() }.key
         var currentDirection = map[currentPosition]!!.guardToDirection()
 
@@ -37,17 +37,17 @@ class GuardGallivant {
         }
     }
 
-    private fun walkFull(map: Map<Coordinate, MapTile>, step: (Coordinate, Direction) -> Unit) =
-        walk(map) { position, direction -> step(position, direction); true}
+    private fun walkFull(map: Map<Vector2D<Int>, MapTile>, step: (Vector2D<Int>, Direction) -> Unit) =
+        walk(map) { position, direction -> step(position, direction); true }
 
-    fun countVisited(map: Map<Coordinate, MapTile>): Int = mutableSetOf<Coordinate>().run {
+    fun countVisited(map: Map<Vector2D<Int>, MapTile>): Int = mutableSetOf<Vector2D<Int>>().run {
         walk(map) { position, _ -> add(position); true }
         size
     }
 
-    fun countLoopObstructions(map: Map<Coordinate, MapTile>): Int {
+    fun countLoopObstructions(map: Map<Vector2D<Int>, MapTile>): Int {
         var count = 0
-        val originalPath = mutableSetOf<Coordinate>()
+        val originalPath = mutableSetOf<Vector2D<Int>>()
         val mutMap = map.toMutableMap().apply {
             entries.filter { it.value.isGuard() }.forEach { this[it.key] = MapTile.EMPTY }
         }
@@ -60,7 +60,7 @@ class GuardGallivant {
                 mutMap[position] = MapTile.byDirection(direction)
                 mutMap[obstacle] = MapTile.OBSTRUCTION
 
-                val path = mutableSetOf<Pair<Coordinate, Direction>>()
+                val path = mutableSetOf<Pair<Vector2D<Int>, Direction>>()
                 walk(mutMap) { altPosition, altDirection ->
                     val loopy = !path.add(Pair(altPosition, altDirection))
                     if (loopy) count++

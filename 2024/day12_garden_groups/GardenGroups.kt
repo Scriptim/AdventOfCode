@@ -1,7 +1,8 @@
 package day12_garden_groups
 
-import Coordinate
 import Direction
+import Vector2D
+import parse2DMap
 import plus
 import java.io.File
 
@@ -9,15 +10,13 @@ class GardenGroups {
 
     fun readInput(): List<String> = File("src/day12_garden_groups/input.txt").readLines()
 
-    fun parseInput(lines: List<String>): Map<Coordinate, Char> = lines.flatMapIndexed { row, line ->
-        line.mapIndexed { column, char -> Pair(column, row) to char }
-    }.toMap()
+    fun parseInput(lines: List<String>): Map<Vector2D<Int>, Char> = parse2DMap(lines)
 
-    private fun regions(map: Map<Coordinate, Char>): Set<Set<Coordinate>> {
-        val visited = mutableSetOf<Coordinate>()
-        val regions = mutableSetOf<MutableSet<Coordinate>>()
+    private fun regions(map: Map<Vector2D<Int>, Char>): Set<Set<Vector2D<Int>>> {
+        val visited = mutableSetOf<Vector2D<Int>>()
+        val regions = mutableSetOf<MutableSet<Vector2D<Int>>>()
 
-        fun flood(coordinate: Coordinate, plant: Char, region: MutableSet<Coordinate>) {
+        fun flood(coordinate: Vector2D<Int>, plant: Char, region: MutableSet<Vector2D<Int>>) {
             if (coordinate in visited) return
             visited.add(coordinate)
 
@@ -41,16 +40,16 @@ class GardenGroups {
         return regions.map { it.toSet() }.toSet()
     }
 
-    private fun perimeter(region: Set<Coordinate>): Int =
+    private fun perimeter(region: Set<Vector2D<Int>>): Int =
         region.sumOf { center -> Direction.VON_NEUMANN_NEIGHBORHOOD.count { center + it !in region } }
 
-    private fun sides(region: Set<Coordinate>): Int = region.sumOf { center ->
+    private fun sides(region: Set<Vector2D<Int>>): Int = region.sumOf { center ->
         Direction.VON_NEUMANN_NEIGHBORHOOD.count {
             center + it !in region && (center + it.turnFullRight() !in region || center + it.turnHalfRight() in region)
         }
     }
 
-    fun totalFencePrice(map: Map<Coordinate, Char>, bulkDiscount: Boolean = false): Int = regions(map).sumOf { region ->
+    fun totalFencePrice(map: Map<Vector2D<Int>, Char>, bulkDiscount: Boolean = false): Int = regions(map).sumOf { region ->
         region.size * if (bulkDiscount) sides(region) else perimeter(region)
     }
 
