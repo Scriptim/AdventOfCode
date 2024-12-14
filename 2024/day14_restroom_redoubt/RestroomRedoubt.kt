@@ -1,6 +1,9 @@
 package day14_restroom_redoubt
 
 import Vector2D
+import div
+import minus
+import plus
 import java.io.File
 
 class RestroomRedoubt {
@@ -33,12 +36,20 @@ class RestroomRedoubt {
                finalRobotsPosition.count { it.position.x > width / 2 && it.position.y < height / 2 }
     }
 
+    fun findChristmasTree(robots: Set<Robot>): Int = (0..<width * height).minBy { seconds ->
+        val finalRobotsPosition = robots.map { robot -> move(robot, seconds) }
+        val expected = finalRobotsPosition.map { it.position }.reduce { acc, position -> acc + position } / robots.size
+        val variance = finalRobotsPosition.sumOf { robot -> (robot.position - expected).run { x * x + y * y } }
+        variance
+    }
+
 }
 
 fun main() {
     RestroomRedoubt().run {
         val robots = parseInput(readInput())
         println(safetyFactor(robots))
+        println(findChristmasTree(robots))
     }
 }
 
