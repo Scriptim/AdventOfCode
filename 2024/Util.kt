@@ -25,6 +25,8 @@ enum class Direction(val delta: Vector2D<Int>) {
     fun turnAround(): Direction = entries[(ordinal + 4) % 8]
 }
 
+operator fun Direction.times(scalar: Int): Vector2D<Int> = delta * scalar
+
 data class Vector2D<T>(val x: T, val y: T) {
 
     inline fun <R> map(transform: (T) -> R): Vector2D<R> = Vector2D(transform(x), transform(y))
@@ -66,3 +68,9 @@ operator fun Vector2D<ULong>.div(scalar: ULong): Vector2D<ULong> = Vector2D(x / 
 fun parse2DMap(lines: List<String>): Map<Vector2D<Int>, Char> = lines.flatMapIndexed { row, line ->
     line.mapIndexed { column, char -> Vector2D(column, row) to char }
 }.toMap()
+
+fun MutableMap<Vector2D<Int>, Char>.replaceStraightLine(start: Vector2D<Int>, line: String, direction: Direction) {
+    line.forEachIndexed { index, char ->
+        this[start + direction * index] = char
+    }
+}
