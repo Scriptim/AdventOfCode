@@ -69,6 +69,22 @@ fun parse2DMap(lines: List<String>): Map<Vector2D<Int>, Char> = lines.flatMapInd
     line.mapIndexed { column, char -> Vector2D(column, row) to char }
 }.toMap()
 
+fun Map<Vector2D<Int>, Char>.print2DMap(
+    replacePosition: Map<Vector2D<Int>, String> = emptyMap(), replaceChar: Map<Char, String> = emptyMap()
+) {
+    (0..keys.maxOf { it.y }).forEach { y ->
+        (0..keys.maxOf { it.x }).forEach { x ->
+            val position = Vector2D(x, y)
+            when {
+                position in replacePosition -> print(replacePosition[position])
+                this[position] in replaceChar -> print(replaceChar[this[position]])
+                else -> print(this[position] ?: ' ')
+            }
+        }
+        println()
+    }
+}
+
 fun MutableMap<Vector2D<Int>, Char>.replaceStraightLine(start: Vector2D<Int>, line: String, direction: Direction) {
     line.forEachIndexed { index, char ->
         this[start + direction * index] = char
