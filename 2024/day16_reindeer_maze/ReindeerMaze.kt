@@ -13,8 +13,7 @@ class ReindeerMaze {
 
     fun parseInput(lines: List<String>): Map<Vector2D<Int>, Char> = parse2DMap(lines)
 
-    fun lowestPathScore(maze: Map<Vector2D<Int>, Char>): UInt {
-        val start = maze.filterValues { it == 'S' }.keys.first()
+    private fun pathScores(maze: Map<Vector2D<Int>, Char>): Map<Vector2D<Int>, Map<Direction, UInt>> {
         val end = maze.filterValues { it == 'E' }.keys.first()
 
         val scores = maze.keys.associateWith { mutableMapOf<Direction, UInt>() }.toMutableMap()
@@ -46,13 +45,40 @@ class ReindeerMaze {
             }
         }
 
-        return scores[start]!!.minOf {
-            it.value + 1000U * when (it.key) {
-                Direction.EAST -> 0U
-                Direction.WEST -> 2U
+        return scores.mapValues { it.value.toMap() }.toMap()
+    }
+
+    private fun scoresAfterTurn(
+        pathScores: Map<Vector2D<Int>, Map<Direction, UInt>>, position: Vector2D<Int>, direction: Direction
+    ): Map<Direction, UInt> =
+        Direction.VON_NEUMANN_NEIGHBORHOOD
+        .filter { it in pathScores[position]!! }
+        .associateWith {
+            pathScores[position]!![it]!! + 1000U * when (it) {
+                direction -> 0U
+                direction.turnAround() -> 2U
                 else -> 1U
             }
         }
+
+    fun lowestPathScore(maze: Map<Vector2D<Int>, Char>): UInt =
+        scoresAfterTurn(pathScores(maze), maze.filterValues { it == 'S' }.keys.first(), Direction.EAST).values.min()
+
+    fun optimalPathsTiles(maze: Map<Vector2D<Int>, Char>): Int {
+        val start = maze.filterValues { it == 'S' }.keys.first()
+        val pathScores = pathScores(maze)
+        val tiles = mutableSetOf<Vector2D<Int>>()
+
+        fun dfs(current: Vector2D<Int>, direction: Direction) {
+            if (maze[current] == '#') return
+            tiles.add(current)
+            val scores = scoresAfterTurn(pathScores, current, direction)
+            val optimalScore = scores.values.minOrNull() ?: return
+            scores.filterValues { it == optimalScore }.forEach { dfs(current + it.key, it.key) }
+        }
+        dfs(start, Direction.EAST)
+
+        return tiles.size
     }
 
 }
@@ -61,5 +87,6 @@ fun main() {
     ReindeerMaze().run {
         val maze = parseInput(readInput())
         println(lowestPathScore(maze))
+        println(optimalPathsTiles(maze))
     }
 }
