@@ -1,3 +1,5 @@
+import kotlin.math.abs
+
 fun <T> List<T>.toPair(): Pair<T, T> = this[0] to this[1]
 
 fun <T> List<T>.dropAt(index: Int): List<T> = this.take(index) + this.drop(index + 1)
@@ -64,6 +66,13 @@ operator fun Vector2D<Int>.div(scalar: Int): Vector2D<Int> = Vector2D(x / scalar
 operator fun Vector2D<Long>.div(scalar: Long): Vector2D<Long> = Vector2D(x / scalar, y / scalar)
 @JvmName("divULong")
 operator fun Vector2D<ULong>.div(scalar: ULong): Vector2D<ULong> = Vector2D(x / scalar, y / scalar)
+
+@JvmName("manhattanInt")
+fun Vector2D<Int>.manhattan(): Int = abs(x) + abs(y)
+@JvmName("manhattanLong")
+fun Vector2D<Long>.manhattan(): Long = abs(x) + abs(y)
+@JvmName("manhattanULong")
+fun Vector2D<ULong>.manhattan(): ULong = x + y
 
 fun parse2DMap(lines: List<String>): Map<Vector2D<Int>, Char> = lines.flatMapIndexed { row, line ->
     line.mapIndexed { column, char -> Vector2D(column, row) to char }
