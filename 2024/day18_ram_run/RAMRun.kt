@@ -20,11 +20,9 @@ class RAMRun {
         Vector2D(x, y)
     }
 
-    fun shortestPathAfterKilobyte(corruptBytes: List<Vector2D<Int>>): Int {
+    private fun shortestPath(corruptBytes: Set<Vector2D<Int>>): Int? {
         val entry = Vector2D(0, 0)
         val exit = Vector2D(width - 1, height - 1)
-
-        val corruptKilobyte = corruptBytes.take(1024).toSet()
 
         val queue = PriorityQueue<Pair<Vector2D<Int>, Int>>(compareBy { it.second }).apply { add(entry to 0) }
         val steps = mutableMapOf(entry to 0).withDefault { Int.MAX_VALUE }
@@ -35,7 +33,7 @@ class RAMRun {
 
             Direction.VON_NEUMANN_NEIGHBORHOOD
                 .map { current + it }
-                .filter { it.x in 0..<width && it.y in 0..<height && it !in corruptKilobyte }
+                .filter { it.x in 0..<width && it.y in 0..<height && it !in corruptBytes }
                 .forEach { neighbor ->
                     val newSteps = steps.getValue(current) + 1
                     if (newSteps < steps.getValue(neighbor)) {
@@ -45,7 +43,23 @@ class RAMRun {
                 }
         }
 
-        throw IllegalArgumentException("No path found")
+        return null
+    }
+
+    fun shortestPathAfterKilobyte(corruptBytes: List<Vector2D<Int>>): Int =
+        shortestPath(corruptBytes.take(1024).toSet())!!
+
+    fun cutOffByte(corruptBytes: List<Vector2D<Int>>): String {
+        var lowerBound = 0
+        var upperBound = corruptBytes.size - 1
+
+        while (lowerBound < upperBound) {
+            val cutOff = (lowerBound + upperBound) / 2
+            val path = shortestPath(corruptBytes.take(cutOff).toSet())
+            if (path != null) lowerBound = cutOff else upperBound = cutOff - 1
+        }
+
+        return "${corruptBytes[upperBound].x},${corruptBytes[upperBound].y}"
     }
 
 }
@@ -54,5 +68,6 @@ fun main() {
     RAMRun().run {
         val corruptBytes = parseInput(readInput())
         println(shortestPathAfterKilobyte(corruptBytes))
+        println(cutOffByte(corruptBytes))
     }
 }
