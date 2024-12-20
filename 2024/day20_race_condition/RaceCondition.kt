@@ -2,6 +2,8 @@ package day20_race_condition
 
 import Direction
 import Vector2D
+import manhattan
+import minus
 import parse2DMap
 import plus
 import java.io.File
@@ -34,18 +36,20 @@ class RaceCondition {
         return distance.toMap()
     }
 
-    private fun radius2Neighbors(center: Vector2D<Int>): Set<Vector2D<Int>> =
-        (-2..2).flatMap { dx ->
-            (-2..2).map { dy ->
+    private fun neighbors(center: Vector2D<Int>, radius: Int): Set<Vector2D<Int>> =
+        (-radius..radius).flatMap { dx ->
+            (-(radius - abs(dx))..(radius - abs(dx))).map { dy ->
                 Vector2D(dx, dy)
             }
-        }.filter { abs(it.x) + abs(it.y) == 2 }.map { center + it }.toSet()
+        }.filter { abs(it.x) + abs(it.y) <= radius }.map { center + it }.toSet()
 
-    fun countGoodCheats(map: Map<Vector2D<Int>, Char>): Int {
+    fun countGoodCheats(map: Map<Vector2D<Int>, Char>, timeLimit: Int): Int {
         val distance = shortestPaths(map)
         val raceTrack = map.filterValues { it != '#' }.keys
         return raceTrack.sumOf { trackTile ->
-            radius2Neighbors(trackTile).count { it in raceTrack && distance[trackTile]!! - (distance[it]!! + 2) >= 100 }
+            neighbors(trackTile, timeLimit).count {
+                it in raceTrack && distance[trackTile]!! - (distance[it]!! + (trackTile - it).manhattan()) >= 100
+            }
         }
     }
 
@@ -54,6 +58,7 @@ class RaceCondition {
 fun main() {
     RaceCondition().run {
         val map = parseInput(readInput())
-        println(countGoodCheats(map))
+        println(countGoodCheats(map, timeLimit = 2))
+        println(countGoodCheats(map, timeLimit = 20))
     }
 }
