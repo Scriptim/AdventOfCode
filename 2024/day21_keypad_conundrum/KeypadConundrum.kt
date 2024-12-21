@@ -27,15 +27,13 @@ class KeypadConundrum {
             currentPosition.takeIf { it + Vector2D(0, delta.y) in keypad }?.let { vertical + horizontal + 'A' })
     }
 
-    private fun shortestButtonSequence(code: String): Int {
-        val numIndirections = 3
-
-        val memo = mutableMapOf<Pair<String, Int>, Int>()
-        fun dp(code: String, indirection: Int): Int {
-            if (indirection == 0) return code.length
+    private fun shortestButtonSequence(code: String, numIndirections: Int): ULong {
+        val memo = mutableMapOf<Pair<String, Int>, ULong>()
+        fun dp(code: String, indirection: Int): ULong {
+            if (indirection == 0) return code.length.toULong()
             return memo.getOrPut(Pair(code, indirection)) {
                 val keypad = if (indirection == numIndirections) numericKeypad else directionalKeypad
-                code.fold(Pair('A', 0)) { (current, value), next ->
+                code.fold(Pair('A', 0UL)) { (current, value), next ->
                     Pair(next, value + buttonPaths(current, next, keypad).minOf { dp(it, indirection - 1) })
                 }.second
             }
@@ -44,8 +42,8 @@ class KeypadConundrum {
         return dp(code, numIndirections)
     }
 
-    fun codeComplexitySum(codes: List<String>) = codes.sumOf { code ->
-        shortestButtonSequence(code) * code.filter { it.isDigit() }.toInt(10)
+    fun codeComplexitySum(codes: List<String>, numIndirections: Int) = codes.sumOf { code ->
+        shortestButtonSequence(code, numIndirections) * code.filter { it.isDigit() }.toULong(10)
     }
 
 }
@@ -53,6 +51,7 @@ class KeypadConundrum {
 fun main() {
     KeypadConundrum().run {
         val codes = readInput()
-        println(codeComplexitySum(codes))
+        println(codeComplexitySum(codes, numIndirections = 3))
+        println(codeComplexitySum(codes, numIndirections = 26))
     }
 }
