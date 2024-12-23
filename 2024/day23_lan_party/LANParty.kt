@@ -18,6 +18,28 @@ class LANParty {
         return map.mapValues { it.value.toSet() }.toMap()
     }
 
+    private fun maximumClique(connections: Set<Pair<String, String>>): Set<String> {
+        val adjacencyMap = adjacencyMap(connections)
+        val maximalCliques = mutableSetOf<Set<String>>()
+
+        fun bronKerbosch(include: Set<String>, maybe: Set<String>, exclude: Set<String>) {
+            if (maybe.isEmpty() && exclude.isEmpty()) maximalCliques.add(include)
+            val visited = mutableSetOf<String>()
+            maybe.forEach { computer ->
+                bronKerbosch(
+                    include + computer,
+                    maybe.minus(visited).intersect(adjacencyMap[computer]!!),
+                    exclude.plus(visited).intersect(adjacencyMap[computer]!!)
+                )
+                visited.add(computer)
+            }
+        }
+
+        bronKerbosch(emptySet(), adjacencyMap.keys, emptySet())
+
+        return maximalCliques.maxBy { it.size }
+    }
+
     fun countThreeCliques(connections: Set<Pair<String, String>>): Int {
         val threeCliques = mutableSetOf<Set<String>>()
         val adjacencyMap = adjacencyMap(connections)
@@ -31,11 +53,14 @@ class LANParty {
         return threeCliques.size
     }
 
+    fun password(connections: Set<Pair<String, String>>): String = maximumClique(connections).sorted().joinToString(",")
+
 }
 
 fun main() {
     LANParty().run {
         val connections = parseInput(readInput())
         println(countThreeCliques(connections))
+        println(password(connections))
     }
 }
